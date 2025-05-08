@@ -7,19 +7,22 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-const page = async () => {
+const Page = async () => {
 
-      const user = await getCurrentUser();
+    const user = await getCurrentUser();
 
-      // by using parallel routing 
-      const [userInterviews,latestInterviews] = await Promise.all([
-        await getInterviewByUserId(user?.id),
-        await getLatestInterviews({userId: user?.id!})
-      ]);
-      // const userInterviews = await getInterviewByUserId(user?.id!);
-      // const latestInterviews = await getLatestInterviews({ userId: user?.id!});
-      const hasPastInterviews = userInterviews?.length > 0;
-      const hasUpcommingInterviews = latestInterviews?.length > 0;
+if (!user || !user.id) {
+  console.error("User is not authenticated or user ID is missing.");
+  return <p>Error: Unable to fetch user data.</p>;
+}
+
+const [userInterviews, latestInterviews] = await Promise.all([
+  getInterviewByUserId(user.id),
+  getLatestInterviews({ userId: user.id })
+]);
+
+const hasPastInterviews = Array.isArray(userInterviews) && userInterviews.length > 0;
+const hasUpcommingInterviews = Array.isArray(latestInterviews) && latestInterviews.length > 0;
 
   return (
     <>
@@ -71,4 +74,4 @@ const page = async () => {
   )
 }
 
-export default page
+export default Page
